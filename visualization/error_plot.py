@@ -2,9 +2,9 @@ import plotly.graph_objects as go
 import numpy as np
 import pandas as pd
 
-def plot_volatility_surface(df: pd.DataFrame, title: str = "Volatility Surface") -> None:
+def plot_error_surface(df: pd.DataFrame, title: str = "Error Surface") -> None:
     '''
-    Plots interactive true and implied volatility surface.
+    Plots error between true volatility surface and calculated volatility surface.
     '''
     strikes = df.index.values
     maturities = df.columns.values
@@ -14,6 +14,6 @@ def plot_volatility_surface(df: pd.DataFrame, title: str = "Volatility Surface")
 
     fig = go.Figure(data=[go.Surface(x=X, y=Y, z=Z, colorscale="Viridis", showscale=True)])
 
-    fig.update_layout(title=title, scene = dict(xaxis_title="Maturity", yaxis_title="Strike", zaxis_title="Implied Volatility",),width=800,height=600,)
+    fig.update_layout(title=title, scene = dict(xaxis_title="Maturity", yaxis_title="Strike", zaxis_title="Error",),width=800,height=600,)
 
     fig.show()

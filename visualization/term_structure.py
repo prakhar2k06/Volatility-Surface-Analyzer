@@ -1,25 +1,24 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import pandas as pd
+import plotly.graph_objects as go
 
 def plot_term_structure(df: pd.DataFrame, spot: float) -> None:
+    '''
+    Plots interactive term structure for various strikes.
+    '''
     strikes = df.index.values
     maturities = df.columns.values
-    atm_idx = np.argmin(np.abs(strikes - spot))
-    idxs = [atm_idx - 1, atm_idx, atm_idx + 1]
 
-    plt.figure(figsize = (10, 7))
+    atm_idx = np.argmin(np.abs(strikes - spot))
+
+    idxs = [0, atm_idx, -1]
+
+    fig = go.Figure()
 
     for i in idxs:
-        strike = strikes[i]
-        iv = df.loc[strike].values
-        plt.plot(maturities, iv, marker = "o", label = f"K = {strike}")
+        K = strikes[i]
+        fig.add_trace(go.Scatter(x=maturities, y=df.loc[K].values, mode="lines+markers", name=f"K = {K:.1f}"))
 
-    plt.xlabel("Maturity (years)")
-    plt.ylabel("ATM Implied Volatility")
-    plt.title(f"Near-ATM Term Structure")
-    plt.legend()
-    plt.grid(True)
+    fig.update_layout(title="ATM Term Structure", xaxis_title="Maturity (T)", yaxis_title="Implied Volatility", width=800, height=500,)
 
-    plt.show()
-
+    fig.show()

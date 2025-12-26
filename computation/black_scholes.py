@@ -2,6 +2,9 @@ import numpy as np
 from scipy.stats import norm
 
 def calculate_theoretical_value(spot_price: float, strike: float, time_to_expiry: float, volatility: float, risk_free_rate: float) -> float:
+    '''
+    Calculates the value of an option obtained via Black-Scholes Formula. Used to generate market prices and calculate implied volatility.
+    '''
     if time_to_expiry <= 1e-8 or volatility <= 1e-8:
         discounted_strike = strike * np.exp(-risk_free_rate * time_to_expiry)
         return max(spot_price - discounted_strike, 0)

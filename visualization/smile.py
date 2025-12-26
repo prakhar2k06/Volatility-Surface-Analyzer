@@ -1,24 +1,22 @@
-import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
+import plotly.graph_objects as go
 
-def plot_smile(df: pd.DataFrame) -> None:
+def plot_smile(df: pd.DataFrame, maturities_to_plot=None) -> None:
+    '''
+    Plots smile of the option for multiple maturities.
+    '''
     strikes = df.index.values
     maturities = df.columns.values
-    n = len(maturities)
-    idxs = [0, n // 2, n-1]
 
-    plt.figure(figsize = (10, 7))
+    if maturities_to_plot is None:
+        n = len(maturities)
+        maturities_to_plot = maturities[2:-1]
 
-    for i in idxs:
-        maturity = maturities[i]
-        iv = df[maturity].values
-        plt.plot(strikes, iv, marker="o", label = f"T = {maturity:.2f}y")
+    fig = go.Figure()
 
-    plt.xlabel("Strike")
-    plt.ylabel("Implied Volatility")
-    plt.title(f"Volatility Smile")
-    plt.legend()
-    plt.grid(True)
+    for T in maturities_to_plot:
+        fig.add_trace(go.Scatter(x=strikes, y=df[T].values, mode="lines+markers", name=f"T = {T:.2f}y"))
 
-    plt.show()
+    fig.update_layout(title="Volatility Smile (Multiple Maturities)", xaxis_title="Strike (K)", yaxis_title="Implied Volatility", width=800, height=500,)
+
+    fig.show()

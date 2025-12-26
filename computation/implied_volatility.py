@@ -2,6 +2,9 @@ import numpy as np
 from computation.black_scholes import calculate_theoretical_value
 
 def calculate_implied_volatility(market_price: float, spot_price: float, strike: float, time_to_expiry: float, risk_free_rate: float, max_iter: int = 100, tol = 1e-6) -> float:
+    '''
+    Calculates implied volatility accurate to a certain tolerance using bisection root finder.
+    '''
     if time_to_expiry <= 0 or market_price <= 0:
         return np.nan
     
