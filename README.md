@@ -54,6 +54,14 @@ Clone the repository and run the notebook in ```experiments/``` to:
 - Generate smile and term structure graph
 - Visualize differences between market regimes
 - View smoothing in action
+  
+### Setup
+
+```
+pip install -r requirements.txt
+jupyter notebook
+```
+
 
 ## Future Extensions:
 
