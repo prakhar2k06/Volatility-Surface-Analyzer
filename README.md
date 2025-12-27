@@ -43,7 +43,8 @@ Volatility-Surface-Analyzer/
 ├── computation/          # Black–Scholes, implied vol, smoothing, error
 ├── visualization/        # Surface, smile, term structure plots
 ├── experiments/          # Jupyter notebooks
-└── README.md
+├── README.md
+└── LICENSE
 ```
 
 ## How to explore
