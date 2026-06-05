@@ -1,74 +1,140 @@
 # Volatility Surface Analyzer
 
-<img width="597" height="402" alt="Screenshot 2025-12-26 at 3 31 57 PM" src="https://github.com/user-attachments/assets/30f2d06e-af54-41ee-a71a-b131be4587da" />
+<img width="597" height="402" alt="Volatility Surface Analyzer Screenshot" src="https://github.com/user-attachments/assets/30f2d06e-af54-41ee-a71a-b131be4587da" />
 
 ## Overview
-This project studies the behaviour of implied volatility and its surface in different market conditions using synthetic option prices.
 
-We produce 
-The project highlights:
-- how implied volatility is calculated
-- how volatility smiles and skews emerge
-- how implied volatility structure varies in different markets
-- where implied volatility can break down
+This project analyzes implied volatility surfaces using live options chain data.
+
+The app takes a ticker as input and produces:
+- raw implied volatility surface
+- smoothed implied volatility surface
+- volatility smile
+- volatility term structure
+- data quality report
+
+The goal of this project is to understand how implied volatility behaves across strikes and maturities, and to visualize where real options data can become sparse, noisy, or unstable.
+
+This project is not investement advice. It is meant to be an analytical and educational tool for studying volatility surfaces.
 
 ## Background: Implied Volatility
 
-Implied volatility is a crucial forward-looking metric that represents the market's expectation of future uncertainity in an option's price. It is not directly observable, rather it is inferred from option prices using an option pricing model.
+Implied volatility is a forward-looking metric that represents the market's expectation of future uncertainty in an option's price. It is not directly observable, rather it is inferred from option prices using an option pricing model.
 
-In this project, implied volatility is obtained by reversing the black-scholes pricing model. For a given market price, we solve for the volatility that corresponds to the theoretical model price.
+In this project, implied volatility is obtained by reversing the Black-Scholes pricing model. For a given market price, we solve for the volatility that corresponds to the theoretical model price.
 
-Because this inversion depends on numerical methods and the vega (option price sensitivity to volatility) of the option, it can be unstable in certain regions, particularly for short-dated or deep out-of-the-money options. 
+Because this inversion depends on numerical methods and the vega of the option, it can be unstable in certain regions, particularly for short-dated, illiquid, or deep out-of-the-money options.
 
+The project also uses the implied volatility provided by yfinance as a fallback when the internal implied volatility calculation fails.
 
 ## Methodology
 
 The project takes the following approach:
-1. A parametric volatility function generates true volatility surface.
-2. European call options are priced using the black scholes formula.
-3. Noise can be added optionally.
-4. Implied volatility is back calculated using the bisection root finding method.
-5. Volatility surfaces, smiles, and term structures are visualized.
-6. Smoothing is done to balance noisy regions.
-7. Error surfaces compare recovered implied volatility and true implied volatility.
 
-**This project is easily extensible to real market data APIs such as yfinance.**
+1. A ticker is provided through the Streamlit frontend.
+2. Options chain data is fetched using yfinance.
+3. The raw options data is cleaned and standardized.
+4. Mid prices are calculated from bid and ask quotes when available.
+5. Implied volatility is calculated using Black-Scholes inversion.
+6. If the calculation fails, the yfinance implied volatility value is used as a fallback.
+7. The cleaned data is transformed into a surface grid.
+8. Raw and smoothed volatility surfaces are visualized.
+9. Volatility smiles and term structures are generated.
+10. A data quality report is shown to highlight how much usable data was available.
+
+## Features
+
+- Live ticker-based options chain fetching
+- Data cleaning and validation pipeline
+- Black-Scholes option pricing
+- Implied volatility calculation using bisection
+- Fallback to provider implied volatility when calculation fails
+- Raw implied volatility surface
+- Smoothed implied volatility surface
+- Volatility smile visualization
+- Volatility term structure visualization
+- Streamlit frontend
+- FastAPI backend
+- Data quality report
 
 ## Project Structure
 
 ```
 Volatility-Surface-Analyzer/
 │
-├── data_generation/      # Synthetic volatility & price generation
-├── computation/          # Black–Scholes, implied vol, smoothing, error
+├── api/                  # FastAPI backend
+├── frontend/             # Streamlit frontend
+├── data/                 # yfinance fetcher and options cleaner
+├── computation/          # Black-Scholes, implied volatility, smoothing
 ├── visualization/        # Surface, smile, term structure plots
-├── experiments/          # Jupyter notebooks
 ├── README.md
+├── requirements.txt
 └── LICENSE
 ```
 
-## How to explore
+## How to Run
 
-Clone the repository and run the notebook in ```experiments/``` to:
-- Generate volatility surfaces
-- Generate smile and term structure graph
-- Visualize differences between market regimes
-- View smoothing in action
-  
-### Setup
+Clone the repository and install the requirements:
 
 ```
 pip install -r requirements.txt
-jupyter notebook
 ```
 
+Start the FastAPI backend:
 
-## Future Extensions:
+```
+uvicorn api.main:app --reload
+```
 
-- Arbitrage constraints
-- Interactive UI for different parameters
-- Extension to real market data
-  
+In a separate terminal, start the Streamlit frontend:
+
+```
+streamlit run frontend/streamlit_app.py
+```
+
+Then enter a ticker such as:
+
+```
+AAPL
+TSLA
+MSFT
+SPY
+```
+
+The app will fetch the options chain, process the data, and display the selected volatility plot.
+
+## Data Quality
+
+Real options data is often messy. Some tickers may have sparse options chains, missing quotes, stale prices, or very wide bid-ask spreads.
+
+Because of this, the project includes a data quality report showing:
+- number of raw rows fetched
+- number of clean rows retained
+- number of rejected rows
+- usable expirations
+- number of call and put contracts
+- quality breakdown of retained rows
+- whether the surface is considered ready for plotting
+
+The cleaner is intentionally not too aggressive. It removes only clearly unusable rows and keeps lower-quality rows marked with quality flags.
+
+## Limitations
+
+- yfinance data may be sparse, stale, or incomplete.
+- The project is not intended for trading decisions.
+- Black-Scholes is a simplified model and does not capture all real market effects.
+- Most listed options are American-style, while the model used here is based on European option pricing.
+- Smoothing is used as a visual aid and should not be interpreted as the true market surface.
+- Some tickers may not have enough reliable options data to generate a useful surface.
+
+## Future Extensions
+
+- Better handling of sparse volatility grids
+- Support for premium options data APIs
+- Arbitrage constraint checks
+- More configurable frontend controls
+- Docker support
+
 ## License
 
 This project is licensed under the MIT License.
@@ -76,4 +142,3 @@ This project is licensed under the MIT License.
 ## Disclaimer
 
 This project is for educational and research purposes only and does not constitute investment advice.
-  
